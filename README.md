@@ -12,7 +12,10 @@
 <strong>Asignatura:</strong> Seguridad de Redes<br>
 <strong>Docente:</strong> Jonathan Esteban Rondon Corniel<br>
 <strong>Fecha de Entrega:</strong> 2 de julio de 2026<br>
-<strong>Video de Exposición:</strong> <a href="https://youtu.be/IevT5CEssRU">https://youtu.be/IevT5CEssRU</a>
+<strong>Video de Exposición:</strong> <a href="https://youtu.be/IevT5CEssRU">https://youtu.be/IevT5CEssRU</a><br>
+<strong>Repositorio de GitHub:</strong> <a href="https://github.com/imAlanG16/03_ipsec_ikev1_gre_s2s">https://github.com/imAlanG16/03_ipsec_ikev1_gre_s2s</a>
+</div>
+</div>
 
 ## Objetivo de la VPN
 El objetivo de este laboratorio es implementar una VPN de tipo Site-to-Site utilizando un túnel GRE (Generic Routing Encapsulation) protegido mediante el protocolo IPSec coordinado bajo IKEv1. La encapsulación GRE permite unificar el tráfico multiprotocolo y de broadcast/multicast en una única interfaz virtual (`Tunnel0`), permitiendo el uso de enrutamiento dinámico sobre el túnel. Dado que GRE carece de propiedades nativas de cifrado y seguridad, se aplica IPSec en modo transporte (Transport Mode) para cifrar exclusivamente el flujo del túnel GRE que se establece entre los direccionamientos públicos de los routers Oeste y Este, logrando un canal seguro de alta eficiencia.
@@ -23,6 +26,7 @@ La topología física mantiene el esquema de sucursales Oeste y Este interconect
 <div style="text-align: center; margin: 10px 0;">
   <img src="images/topologia_s2s.png" width="400" alt="Topología de Red Site-to-Site GNS3">
   <p style="font-size: 0.9em; color: #666; font-style: italic;">Topología física Site-to-Site para el túnel GRE</p>
+</div>
 
 El direccionamiento IP de las interfaces y subredes lógicas del escenario es:
 
@@ -35,8 +39,10 @@ El direccionamiento IP de las interfaces y subredes lógicas del escenario es:
 | | Ethernet0/1 | `14.3.20.1/24` | LAN interna corporativa |
 | | Tunnel0 | `10.0.0.2/30` | Source: `Ethernet0/0` / Dest: `1.1.1.2` |* Interfaz Tunnel0 (Túnel GRE): `10.0.0.2/30` (Source: `Ethernet0/0`, Dest: `1.1.1.2`)
 
+</div>
 
-<div style="page-break-after: always; break-after: page; display: block; height: 1px; overflow: hidden;">
+
+<div style="page-break-after: always; break-after: page; display: block; height: 1px; overflow: hidden;"></div>
 
 ## Parámetros Criptográficos Utilizados
 Los parámetros de encriptación y encapsulación aplicados son:
@@ -59,7 +65,7 @@ El enrutador OESTE y el enrutador ESTE configuran una interfaz lógica `Tunnel0`
 Los comandos aplicados completos de este diseño se encuentran en: [script_configuracion.txt](resources/script_configuracion.txt).
 
 
-<div style="page-break-after: always; break-after: page; display: block; height: 1px; overflow: hidden;">
+<div style="page-break-after: always; break-after: page; display: block; height: 1px; overflow: hidden;"></div>
 
 ## Verificación de Funcionamiento
 
@@ -71,6 +77,9 @@ La SA se encuentra en estado **`QM_IDLE`** y estatus **`ACTIVE`**, validando que
 <div style="text-align: center; margin: 10px 0;">
   <img src="images/crypto_isakmp_sa.png" width="400" alt="Asociación ISAKMP activa en OESTE">
   <p style="font-size: 0.9em; color: #666; font-style: italic;">Asociación ISAKMP activa en el router OESTE con estado QM_IDLE</p>
+</div>
+
+</div>
 
 ### 2. Asociación de Cifrado IPSec en el Tránsito GRE (Fase 2)
 La comprobación de la Fase 2 se realiza mediante el comando `show crypto ipsec sa` en el router `OESTE`. Al tratarse de una implementación de túnel GRE sobre IPSec mediante crypto maps físicos, la asociación criptográfica matchea exclusivamente el protocolo **GRE (protocolo IP 47)** de forma directa entre los direccionamientos públicos WAN:
@@ -84,6 +93,9 @@ Esto comprueba que todo el tráfico encapsulado en GRE es capturado y procesado 
 <div style="text-align: center; margin: 10px 0;">
   <img src="images/crypto_ipsec_sa.png" width="400" alt="Salida de show crypto ipsec sa en OESTE para tránsitos GRE">
   <p style="font-size: 0.9em; color: #666; font-style: italic;">Detalles de la SA IPSec protegiendo el protocolo 47 (GRE) de WAN a WAN</p>
+</div>
+
+</div>
 
 ### 3. Prueba de Conectividad y Enrutamiento LAN a LAN (Rastreo GRE)
 La verificación de extremo a extremo se realiza desde la consola del cliente VPCS en el extremo Oeste. En primer lugar, al ejecutar `show ip`, se verifica que el cliente cuenta con la IP local `14.3.10.11/24` y gateway `14.3.10.1`. 
@@ -96,3 +108,5 @@ Posteriormente, al trazar la ruta hacia la LAN remota en el Este (`14.3.20.11`) 
 <div style="text-align: center; margin: 10px 0;">
   <img src="images/ping_lan_a_lan.png" width="400" alt="Direccionamiento y traceroute a través del túnel GRE">
   <p style="font-size: 0.9em; color: #666; font-style: italic;">Verificación de enrutamiento en VPCS pasando a través del extremo de túnel GRE 10.0.0.2</p>
+</div>
+</div>
