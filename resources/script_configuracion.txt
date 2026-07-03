@@ -1,0 +1,161 @@
+GRE IKEv1 Alan
+
+###PEER OESTE###
+
+enable
+configure terminal
+
+hostname OESTE
+
+interface Ethernet0/0
+ description CONEXION_HACIA_ISP
+ ip address 1.1.1.2 255.255.255.252
+ no shutdown
+exit
+
+interface Ethernet0/1
+ description RED_LAN_INTERNA_OESTE
+ ip address 14.3.10.1 255.255.255.0
+ no shutdown
+exit
+
+ip route 0.0.0.0 0.0.0.0 1.1.1.1
+
+ip dhcp excluded-address 14.3.10.1 14.3.10.10
+ip dhcp pool LAN10
+ network 14.3.10.0 255.255.255.0
+ default-router 14.3.10.1
+ dns-server 8.8.8.8
+exit
+
+crypto isakmp policy 10
+ encryption aes 256
+ hash sha256
+ authentication pre-share
+ group 14
+exit
+
+crypto isakmp key CISCO123 address 2.2.2.2
+
+crypto ipsec transform-set TS_GRE_IKEV1 esp-aes 256 esp-sha256-hmac
+ mode transport
+exit
+
+access-list 110 permit gre host 1.1.1.2 host 2.2.2.2
+
+crypto map MAPA_GRE 10 ipsec-isakmp
+ set peer 2.2.2.2
+ set transform-set TS_GRE_IKEV1
+ match address 110
+exit
+
+interface Tunnel0
+ description TUNEL_GRE_OESTE_ESTE
+ ip address 10.0.0.1 255.255.255.252
+ tunnel source Ethernet0/0
+ tunnel destination 2.2.2.2
+exit
+
+interface Ethernet0/0
+ crypto map MAPA_GRE
+exit
+
+ip route 14.3.20.0 255.255.255.0 10.0.0.2
+
+end
+write
+
+###PEER ESTE###
+
+enable
+configure terminal
+
+hostname ESTE
+
+interface Ethernet0/0
+ description CONEXION_HACIA_ISP
+ ip address 2.2.2.2 255.255.255.252
+ no shutdown
+exit
+
+interface Ethernet0/1
+ description RED_LAN_INTERNA_ESTE
+ ip address 14.3.20.1 255.255.255.0
+ no shutdown
+exit
+
+ip route 0.0.0.0 0.0.0.0 2.2.2.1
+
+ip dhcp excluded-address 14.3.20.1 14.3.20.10
+ip dhcp pool LAN20
+ network 14.3.20.0 255.255.255.0
+ default-router 14.3.20.1
+ dns-server 8.8.8.8
+exit
+
+crypto isakmp policy 10
+ encryption aes 256
+ hash sha256
+ authentication pre-share
+ group 14
+exit
+
+crypto isakmp key CISCO123 address 1.1.1.2
+
+crypto ipsec transform-set TS_GRE_IKEV1 esp-aes 256 esp-sha256-hmac
+ mode transport
+exit
+
+access-list 110 permit gre host 2.2.2.2 host 1.1.1.2
+
+crypto map MAPA_GRE 10 ipsec-isakmp
+ set peer 1.1.1.2
+ set transform-set TS_GRE_IKEV1
+ match address 110
+exit
+
+interface Tunnel0
+ description TUNEL_GRE_ESTE_OESTE
+ ip address 10.0.0.2 255.255.255.252
+ tunnel source Ethernet0/0
+ tunnel destination 1.1.1.2
+exit
+
+interface Ethernet0/0
+ crypto map MAPA_GRE
+exit
+
+ip route 14.3.10.0 255.255.255.0 10.0.0.1
+
+end
+write
+
+###ISP###
+
+ena
+configure terminal
+
+hostname ISP
+
+! --- INTERFAZ HACIA PEER OESTE (.1) ---
+interface Ethernet0/0
+ description CONEXION_A_PEER_OESTE
+ ip address 1.1.1.1 255.255.255.252
+ no shutdown
+exit
+
+! --- INTERFAZ HACIA PEER ESTE (.1) ---
+interface Ethernet0/1
+ description CONEXION_A_PEER_ESTE
+ ip address 2.2.2.1 255.255.255.252
+ no shutdown
+exit
+
+! --- RUTA HACIA EL OESTE ---
+ip route 1.1.1.2 255.255.255.255 Ethernet0/0
+
+! --- RUTA HACIA EL ESTE ---
+ip route 2.2.2.2 255.255.255.255 Ethernet0/1
+
+end
+wr
